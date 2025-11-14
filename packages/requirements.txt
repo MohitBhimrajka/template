@@ -1,0 +1,16 @@
+# packages/requirements.txt
+# Core Application Dependencies
+fastapi
+uvicorn
+gunicorn
+gitingest
+geoip2
+
+# --- Development & Code Quality Tools ---
+black
+isort
+flake8
+python-json-logger
+sqlalchemy
+psycopg2-binary
+alembic

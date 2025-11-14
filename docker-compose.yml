@@ -1,0 +1,71 @@
+# docker-compose.yml
+services:
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-password}
+      POSTGRES_DB: ${POSTGRES_DB:-app_db}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    restart: unless-stopped
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-user} -d ${POSTGRES_DB:-app_db}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ./app:/app/app
+      - ./utils:/app/utils  # Mount utils directory
+      - ./alembic:/app/alembic  # Mount alembic directory  
+      - ./alembic.ini:/app/alembic.ini  # Mount alembic config file
+    ports:
+      - "8001:8000"
+    environment:
+      - APP_ENV=development  # This tells entrypoint.sh to use development mode
+    env_file:
+      - .env
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - app-network
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      # Build-time arguments (`args`) are used to bake environment variables
+      # into the static frontend assets during the `next build` process.
+      args:
+        - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
+        - NEXT_PUBLIC_BASE_PATH=${NEXT_PUBLIC_BASE_PATH}
+    ports:
+      - "3001:3000"
+    # Runtime environment variables (`environment` or `env_file`) are available
+    # to the Node.js server process when it runs the application (`next start`).
+    env_file:
+      - .env
+    depends_on:
+      - backend
+    networks:
+      - app-network
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+
+# Define the shared network
+networks:
+  app-network:
+    driver: bridge

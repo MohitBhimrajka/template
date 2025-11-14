@@ -1,0 +1,27 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+.venv/
+
+# Git
+.git
+.gitignore
+
+# DB
+ap_data.db
+ap_data.db-journal
+
+# Other
+.idea/
+.vscode/
+.DS_Store
+*.log
+*.tmp
+
+# Frontend - prevent it from being included in backend context
+frontend/ 
