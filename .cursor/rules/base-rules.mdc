@@ -1,0 +1,91 @@
+---
+alwaysApply: true
+---
+# Cursor Rules for Full-Stack Template Project
+
+## CRITICAL SAFETY RULES - NEVER BREAK THESE
+
+### Build & Validation Rules
+- **ALWAYS run `npm run build` in /frontend/ after ANY frontend changes**
+- **ALWAYS check for TypeScript errors with `npm run type-check` before finalizing changes**
+- **ALWAYS run linting with `npm run lint` and fix all errors**
+- **NEVER leave the project in a broken build state**
+
+### Database Safety Rules
+- **NEVER modify existing Alembic migrations - only create new ones**
+- **ALWAYS test database migrations on a copy before applying to main DB**
+- **NEVER delete migration files or change migration order**
+- **ALWAYS run `alembic upgrade head` after creating new migrations**
+
+### Docker & Environment Rules
+- **ALWAYS test Docker builds after Dockerfile changes: `docker-compose build`**
+- **NEVER commit changes that break docker-compose up**
+- **ALWAYS verify both frontend and backend containers start successfully**
+- **NEVER hardcode localhost URLs - use environment variables**
+
+### Code Safety Rules
+- **ALWAYS run backend tests with `pytest` before finalizing Python changes**
+- **NEVER commit code with syntax errors or import failures**
+- **ALWAYS check for circular imports in Python modules**
+- **NEVER break existing API contracts without versioning**
+
+### File System Rules
+- **NEVER delete core configuration files (.env, docker-compose.yml, package.json)**
+- **NEVER modify package-lock.json manually - only through npm commands**
+- **ALWAYS preserve existing environment variable names when updating configs**
+- **NEVER commit sensitive data (API keys, passwords, secrets)**
+
+### Dependency Management Rules
+- **ALWAYS use `npm install` (not yarn) for frontend dependencies**
+- **ALWAYS use `pip install -r requirements.txt` for Python dependencies**
+- **NEVER mix package managers (npm + yarn, pip + conda)**
+- **ALWAYS update requirements.txt when adding Python packages**
+
+### Git & Version Control Rules
+- **NEVER commit node_modules/ or __pycache__/ directories**
+- **ALWAYS verify .gitignore is working before committing**
+- **NEVER force push to main/master branch**
+- **ALWAYS test changes locally before committing**
+
+### Development Workflow Rules
+- **ALWAYS check both frontend (localhost:3000) and backend (localhost:8000) work after changes**
+- **NEVER leave debug print statements or console.logs in production code**
+- **ALWAYS verify authentication flows still work after auth-related changes**
+- **NEVER break the development server startup process**
+
+### API & Integration Rules
+- **ALWAYS test API endpoints with proper request/response schemas**
+- **NEVER change database schema without corresponding Pydantic schema updates**
+- **ALWAYS maintain backward compatibility for existing API endpoints**
+- **NEVER break CORS configuration**
+
+### Error Handling Rules
+- **ALWAYS fix linter errors immediately - never ignore them**
+- **ALWAYS handle TypeScript strict mode errors properly**
+- **NEVER suppress errors without understanding and documenting why**
+- **ALWAYS test error scenarios and edge cases**
+
+## VERIFICATION CHECKLIST
+Before marking any task as complete, verify:
+- [ ] `npm run build` passes in /frontend/
+- [ ] `npm run lint` shows no errors
+- [ ] Docker containers start successfully
+- [ ] No new TypeScript errors
+- [ ] No broken imports or syntax errors
+- [ ] API endpoints return expected responses
+- [ ] Database migrations apply cleanly
+
+## PROJECT CONTEXT
+This is a production-ready full-stack template with:
+- Backend: Python FastAPI + SQLAlchemy + Alembic
+- Frontend: Next.js 14+ + TypeScript + Tailwind CSS
+- Database: PostgreSQL in Docker
+- Authentication: NextAuth.js
+
+## EMERGENCY RECOVERY
+If something breaks:
+1. Check git status and recent changes
+2. Run build commands to identify specific errors
+3. Check Docker logs: `docker-compose logs`
+4. Restore from last working state if needed
+5. Never leave the project in a broken state
