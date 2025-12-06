@@ -384,6 +384,12 @@ Update `DATABASE_URL` in `.env` with your connection string.
 │   │   ├── components/    # Reusable React components
 │   │   └── lib/          # Utility functions
 │   └── package.json       # Node.js dependencies
+├── deployment/            # 🚀 Production deployment scripts and configuration
+│   ├── README.md          #   Complete deployment guide
+│   ├── prod.example.env   #   Production environment template
+│   ├── gcloud-deploy.sh   #   Single-command Google Cloud deployment
+│   ├── setup-cloudsql.sh  #   Cloud SQL database setup helper
+│   └── cloudbuild.yaml    #   CI/CD pipeline configuration
 ├── scripts/                # Setup and utility scripts
 ├── alembic/               # Database migration files
 ├── make_ingest.py         # Utility script for generating project digests with gitingest
@@ -499,14 +505,45 @@ chmod +x scripts/*.py
 
 ## Production Deployment
 
-For production deployment instructions, see [DEPLOYMENT.md](./docs/DEPLOYMENT.md).
+### 🚀 Google Cloud Run (Recommended)
 
-Key considerations:
-- Use managed database services
-- Configure proper environment variables
-- Enable HTTPS with reverse proxy
-- Set up monitoring and logging
-- Use container orchestration (Kubernetes, ECS, etc.)
+Deploy your entire application to Google Cloud Run with a single command:
+
+```bash
+# 1. Set up your production environment
+cp deployment/prod.example.env deployment/.env.prod
+# Edit .env.prod with your settings
+
+# 2. Optional: Set up Cloud SQL database
+./deployment/setup-cloudsql.sh
+
+# 3. Deploy to Cloud Run
+./deployment/gcloud-deploy.sh
+```
+
+**✅ What you get:**
+- **Serverless**: Pay only for requests, auto-scaling
+- **Managed Database**: PostgreSQL on Google Cloud SQL  
+- **HTTPS**: Automatic SSL certificates
+- **CI/CD Ready**: GitHub integration with Cloud Build
+- **Monitoring**: Built-in logging, metrics, and error reporting
+
+**📚 Full deployment guide:** [deployment/README.md](./deployment/README.md)
+
+### Alternative Deployment Options
+
+**Docker Compose (Development/Testing):**
+```bash
+docker-compose up --build
+```
+
+**Other Cloud Providers:**
+- **AWS**: Use ECS/Fargate + RDS
+- **Azure**: Use Container Instances + PostgreSQL
+- **DigitalOcean**: Use App Platform + Managed Database
+- **Heroku**: Use standard buildpacks + Heroku Postgres
+
+For detailed instructions on other deployment methods, see the [deployment folder](./deployment/).
 
 ## Contributing
 
