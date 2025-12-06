@@ -100,7 +100,13 @@ def check_pending_migrations():
         print("⚠️  No migrations applied yet - all migrations are pending")
         return True
     
-    if current_rev in heads:
+    # Extract the revision ID from current output (handles format like "abc123def (head)")
+    current_revision_id = current_rev.split()[0] if current_rev else ""
+    
+    # Get list of head revision IDs
+    head_revisions = [rev.strip() for rev in heads.split('\n') if rev.strip()]
+    
+    if current_revision_id in head_revisions:
         print("✅ Database is up to date - no pending migrations")
     else:
         print("📋 Pending migrations found - database needs updating")

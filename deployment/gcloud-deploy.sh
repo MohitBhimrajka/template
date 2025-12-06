@@ -229,37 +229,42 @@ deploy_backend() {
     
     log_info "Deploying backend to Cloud Run..."
     
-    # Prepare Cloud Run deployment command
-    local deploy_cmd="gcloud run deploy $BACKEND_SERVICE_NAME"
-    deploy_cmd+=" --image=gcr.io/$GOOGLE_CLOUD_PROJECT/backend:$BACKEND_IMAGE_TAG"
-    deploy_cmd+=" --region=$GOOGLE_CLOUD_REGION"
-    deploy_cmd+=" --platform=managed"
-    deploy_cmd+=" --memory=${CLOUD_RUN_MEMORY:-1Gi}"
-    deploy_cmd+=" --cpu=${CLOUD_RUN_CPU:-1}"
-    deploy_cmd+=" --max-instances=${CLOUD_RUN_MAX_INSTANCES:-10}"
-    deploy_cmd+=" --min-instances=${CLOUD_RUN_MIN_INSTANCES:-0}"
-    deploy_cmd+=" --concurrency=${CLOUD_RUN_CONCURRENCY:-80}"
-    deploy_cmd+=" --timeout=${CLOUD_RUN_TIMEOUT:-300}"
-    deploy_cmd+=" --port=8000"
+    # Prepare Cloud Run deployment command using array for security
+    local deploy_cmd=(
+        "gcloud" "run" "deploy" "$BACKEND_SERVICE_NAME"
+        "--image=gcr.io/$GOOGLE_CLOUD_PROJECT/backend:$BACKEND_IMAGE_TAG"
+        "--region=$GOOGLE_CLOUD_REGION"
+        "--platform=managed"
+        "--memory=${CLOUD_RUN_MEMORY:-1Gi}"
+        "--cpu=${CLOUD_RUN_CPU:-1}"
+        "--max-instances=${CLOUD_RUN_MAX_INSTANCES:-10}"
+        "--min-instances=${CLOUD_RUN_MIN_INSTANCES:-0}"
+        "--concurrency=${CLOUD_RUN_CONCURRENCY:-80}"
+        "--timeout=${CLOUD_RUN_TIMEOUT:-300}"
+        "--port=8000"
+    )
     
-    # Add environment variables
-    deploy_cmd+=" --set-env-vars=APP_ENV=production"
-    deploy_cmd+=" --set-env-vars=LOG_LEVEL=$LOG_LEVEL"
-    deploy_cmd+=" --set-env-vars=GUNICORN_LOG_LEVEL=$GUNICORN_LOG_LEVEL"
-    deploy_cmd+=" --set-env-vars=DATABASE_URL=$DATABASE_URL"
-    deploy_cmd+=" --set-env-vars=FRONTEND_URL=$FRONTEND_URL"
-    deploy_cmd+=" --set-env-vars=BASE_PATH=$BASE_PATH"
+    # Add environment variables (properly quoted to prevent injection)
+    deploy_cmd+=(
+        "--set-env-vars=APP_ENV=production"
+        "--set-env-vars=LOG_LEVEL=$LOG_LEVEL"
+        "--set-env-vars=GUNICORN_LOG_LEVEL=$GUNICORN_LOG_LEVEL"
+        "--set-env-vars=DATABASE_URL=$DATABASE_URL"
+        "--set-env-vars=FRONTEND_URL=$FRONTEND_URL"
+        "--set-env-vars=BASE_PATH=$BASE_PATH"
+        "--set-env-vars=SKIP_DB_WAIT=$SKIP_DB_WAIT"
+    )
     
     # Add Cloud SQL connection if specified
     if [[ -n "$CLOUD_SQL_CONNECTION_NAME" ]]; then
-        deploy_cmd+=" --add-cloudsql-instances=$CLOUD_SQL_CONNECTION_NAME"
+        deploy_cmd+=("--add-cloudsql-instances=$CLOUD_SQL_CONNECTION_NAME")
     fi
     
     # Set traffic allocation
-    deploy_cmd+=" --allow-unauthenticated"
+    deploy_cmd+=("--allow-unauthenticated")
     
-    # Execute deployment
-    eval "$deploy_cmd"
+    # Execute deployment securely (no eval, proper quoting)
+    "${deploy_cmd[@]}"
     
     # Get the service URL
     local backend_url=$(gcloud run services describe "$BACKEND_SERVICE_NAME" \
@@ -277,30 +282,34 @@ deploy_frontend() {
     
     log_info "Deploying frontend to Cloud Run..."
     
-    # Prepare Cloud Run deployment command
-    local deploy_cmd="gcloud run deploy $FRONTEND_SERVICE_NAME"
-    deploy_cmd+=" --image=gcr.io/$GOOGLE_CLOUD_PROJECT/frontend:$FRONTEND_IMAGE_TAG"
-    deploy_cmd+=" --region=$GOOGLE_CLOUD_REGION"
-    deploy_cmd+=" --platform=managed"
-    deploy_cmd+=" --memory=${CLOUD_RUN_MEMORY:-1Gi}"
-    deploy_cmd+=" --cpu=${CLOUD_RUN_CPU:-1}"
-    deploy_cmd+=" --max-instances=${CLOUD_RUN_MAX_INSTANCES:-10}"
-    deploy_cmd+=" --min-instances=${CLOUD_RUN_MIN_INSTANCES:-0}"
-    deploy_cmd+=" --concurrency=${CLOUD_RUN_CONCURRENCY:-80}"
-    deploy_cmd+=" --timeout=${CLOUD_RUN_TIMEOUT:-300}"
-    deploy_cmd+=" --port=3000"
+    # Prepare Cloud Run deployment command using array for security
+    local deploy_cmd=(
+        "gcloud" "run" "deploy" "$FRONTEND_SERVICE_NAME"
+        "--image=gcr.io/$GOOGLE_CLOUD_PROJECT/frontend:$FRONTEND_IMAGE_TAG"
+        "--region=$GOOGLE_CLOUD_REGION"
+        "--platform=managed"
+        "--memory=${CLOUD_RUN_MEMORY:-1Gi}"
+        "--cpu=${CLOUD_RUN_CPU:-1}"
+        "--max-instances=${CLOUD_RUN_MAX_INSTANCES:-10}"
+        "--min-instances=${CLOUD_RUN_MIN_INSTANCES:-0}"
+        "--concurrency=${CLOUD_RUN_CONCURRENCY:-80}"
+        "--timeout=${CLOUD_RUN_TIMEOUT:-300}"
+        "--port=3000"
+    )
     
-    # Add environment variables
-    deploy_cmd+=" --set-env-vars=NODE_ENV=production"
-    deploy_cmd+=" --set-env-vars=NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL"
-    deploy_cmd+=" --set-env-vars=NEXT_PUBLIC_BASE_PATH=$NEXT_PUBLIC_BASE_PATH"
-    deploy_cmd+=" --set-env-vars=INTERNAL_API_URL=$INTERNAL_API_URL"
+    # Add environment variables (properly quoted to prevent injection)
+    deploy_cmd+=(
+        "--set-env-vars=NODE_ENV=production"
+        "--set-env-vars=NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL"
+        "--set-env-vars=NEXT_PUBLIC_BASE_PATH=$NEXT_PUBLIC_BASE_PATH"
+        "--set-env-vars=INTERNAL_API_URL=$INTERNAL_API_URL"
+    )
     
     # Set traffic allocation
-    deploy_cmd+=" --allow-unauthenticated"
+    deploy_cmd+=("--allow-unauthenticated")
     
-    # Execute deployment
-    eval "$deploy_cmd"
+    # Execute deployment securely (no eval, proper quoting)
+    "${deploy_cmd[@]}"
     
     # Get the service URL
     local frontend_url=$(gcloud run services describe "$FRONTEND_SERVICE_NAME" \

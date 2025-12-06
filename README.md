@@ -5,11 +5,13 @@ A production-ready template for building modern web applications featuring a Pyt
 ## Features
 
 - **Production-Ready Stack**: FastAPI, Next.js, and PostgreSQL working together
-- **Cross-Platform Compatibility**: Works on Windows, macOS, and Linux
+- **Single-Command Deployment**: Deploy to Google Cloud Run with `./deployment/gcloud-deploy.sh`
+- **Cross-Platform Compatibility**: Works on Windows, macOS, and Linux  
 - **Clean Architecture**: Simplified codebase without authentication complexity
 - **Containerized Development**: Docker and Docker Compose for consistent environments
 - **Multiple Setup Options**: Docker, local development, or hybrid approaches
 - **Developer Experience**: Code formatting, linting, and database migrations included
+- **Health Monitoring**: Built-in health checks and monitoring for production environments
 
 ## Technology Stack
 
@@ -17,8 +19,11 @@ A production-ready template for building modern web applications featuring a Pyt
 |-----------|------------|---------|
 | Backend   | Python 3.11 with FastAPI | High-performance API development |
 | Frontend  | Next.js 15 with React 19 & TypeScript | Modern user interface framework |
-| Database  | PostgreSQL 15 | Reliable relational database |
+| Database  | PostgreSQL 15 / SQLite | Reliable relational database |
 | DevOps    | Docker & Docker Compose | Containerization and orchestration |
+| Deployment | Google Cloud Run | Serverless production hosting |
+| Migrations | Alembic | Database schema management |
+| Monitoring | Cloud Run Logging | Production observability |
 
 ## Prerequisites
 
@@ -46,7 +51,24 @@ cp .env.example .env
 
 ### 2. Choose Your Setup Method
 
-#### Method A: Full Docker Setup
+#### Option A: Production Deployment (Google Cloud)
+
+Deploy directly to Google Cloud Run:
+
+```bash
+# Set up production environment
+cp deployment/prod.example.env deployment/.env.prod
+# Edit .env.prod with your Google Cloud project settings
+
+# Deploy to Google Cloud Run
+./deployment/gcloud-deploy.sh
+```
+
+#### Option B: Local Development
+
+Choose your preferred local development method:
+
+#### Method B1: Full Docker Setup (Recommended for Local)
 
 **Windows (Command Prompt/PowerShell):**
 ```cmd
@@ -71,7 +93,7 @@ docker-compose down
 make up
 ```
 
-#### Method B: Local Development Setup
+#### Method B2: Local Development Setup (Manual)
 
 **Manual setup:**
 
@@ -114,7 +136,7 @@ make up
 
 ### Automatic Migration on Startup
 
-**✅ Production Ready**: Database migrations run automatically when the application starts, ensuring your database schema is always up-to-date without manual intervention.
+**Production Ready**: Database migrations run automatically when the application starts, ensuring your database schema is always up-to-date without manual intervention.
 
 **How it works:**
 1. Application starts and waits for database connection
@@ -384,7 +406,7 @@ Update `DATABASE_URL` in `.env` with your connection string.
 │   │   ├── components/    # Reusable React components
 │   │   └── lib/          # Utility functions
 │   └── package.json       # Node.js dependencies
-├── deployment/            # 🚀 Production deployment scripts and configuration
+├── deployment/            # Production deployment scripts and configuration
 │   ├── README.md          #   Complete deployment guide
 │   ├── prod.example.env   #   Production environment template
 │   ├── gcloud-deploy.sh   #   Single-command Google Cloud deployment
@@ -453,7 +475,7 @@ Update `DATABASE_URL` in `.env` with your connection string.
 
 ## Troubleshooting
 
-### Common Issues
+### Common Setup Issues
 
 **Database Connection Errors:**
 - Verify PostgreSQL is running
@@ -505,30 +527,34 @@ chmod +x scripts/*.py
 
 ## Production Deployment
 
-### 🚀 Google Cloud Run (Recommended)
+### Google Cloud Run (Recommended)
 
 Deploy your entire application to Google Cloud Run with a single command:
 
 ```bash
 # 1. Set up your production environment
 cp deployment/prod.example.env deployment/.env.prod
-# Edit .env.prod with your settings
+# Edit .env.prod with your project settings
 
-# 2. Optional: Set up Cloud SQL database
-./deployment/setup-cloudsql.sh
-
-# 3. Deploy to Cloud Run
+# 2. Deploy to Google Cloud Run
 ./deployment/gcloud-deploy.sh
 ```
 
-**✅ What you get:**
-- **Serverless**: Pay only for requests, auto-scaling
-- **Managed Database**: PostgreSQL on Google Cloud SQL  
-- **HTTPS**: Automatic SSL certificates
+**What you get:**
+- **Serverless**: Pay only for requests, automatic scaling
+- **Managed Infrastructure**: Google Cloud handles scaling, SSL, and monitoring
+- **HTTPS**: Automatic SSL certificates  
 - **CI/CD Ready**: GitHub integration with Cloud Build
 - **Monitoring**: Built-in logging, metrics, and error reporting
+- **Production Features**: Health checks, error handling, and optimized configurations
 
-**📚 Full deployment guide:** [deployment/README.md](./deployment/README.md)
+**Key Features:**
+- Automatic scaling from 0 to 1000+ instances based on traffic
+- Built-in load balancing and SSL termination
+- Integration with Google Cloud's monitoring and logging services
+- Support for custom domains and advanced networking
+
+**Full deployment guide:** [deployment/README.md](./deployment/README.md)
 
 ### Alternative Deployment Options
 

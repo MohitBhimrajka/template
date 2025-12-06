@@ -4,8 +4,10 @@ import os
 from datetime import datetime, timezone
 
 import geoip2.database
-from fastapi import APIRouter, Depends, FastAPI, Header, Request
+from fastapi import APIRouter, Depends, FastAPI, Header, Request, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
+from starlette.exceptions import HTTPException as StarletteHTTPException
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
@@ -47,6 +49,30 @@ class FileUpload(BaseModel):
 # Create the FastAPI app instance
 app = FastAPI(title="Web Template API")
 
+# --- ROOT-LEVEL ENDPOINTS ---
+# These are outside the /api prefix for Cloud Run health checks
+
+@app.get("/health", tags=["Health"])
+def root_health():
+    """Root-level health check for Cloud Run and load balancers."""
+    return {"status": "healthy", "service": "template-backend"}
+
+@app.get("/", tags=["Root"])
+def root():
+    """Root endpoint with basic info."""
+    return {
+        "service": "Web Template API",
+        "status": "running",
+        "docs": "/docs",
+        "health": "/health"
+    }
+
+@app.get("/favicon.ico", include_in_schema=False)
+def favicon():
+    """Return a simple favicon response to avoid 404s."""
+    from fastapi import Response
+    return Response(content="", media_type="image/x-icon")
+
 
 @app.on_event("startup")
 async def startup_event():
@@ -70,6 +96,25 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# --- EXCEPTION HANDLERS ---
+@app.exception_handler(StarletteHTTPException)
+async def not_found_handler(request: Request, exc: StarletteHTTPException):
+    """Custom 404 handler to provide better error messages."""
+    if exc.status_code == 404:
+        return JSONResponse(
+            status_code=404,
+            content={
+                "error": "Not Found",
+                "message": f"The requested path '{request.url.path}' was not found.",
+                "suggestion": "Try /docs for API documentation or /health for health check."
+            }
+        )
+    # Re-raise other HTTP exceptions
+    return JSONResponse(
+        status_code=exc.status_code,
+        content={"error": "HTTP Exception", "detail": str(exc.detail)}
+    )
 
 # --- SIMPLE ENDPOINTS (Protected Automatically) ---
 # These endpoints require no special code because their rules are simple

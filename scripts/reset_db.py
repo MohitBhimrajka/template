@@ -107,8 +107,8 @@ def reset_database():
     print("Connecting to the database...")
 
     try:
-        # Use a raw connection to execute DDL statements outside a transaction block
-        with engine.connect() as connection:
+        # Use a transaction to ensure DDL statements are committed
+        with engine.begin() as connection:
             print("🗑️  Dropping public schema (this destroys all data)...")
             # Use CASCADE to drop dependent objects
             connection.execute(text("DROP SCHEMA public CASCADE;"))

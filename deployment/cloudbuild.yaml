@@ -27,6 +27,9 @@ substitutions:
   # Environment configuration
   _APP_ENV: 'production'
   _LOG_LEVEL: 'INFO'
+  
+  # Frontend URL configuration (set this when creating the build trigger)
+  _NEXT_PUBLIC_API_URL: 'https://your-backend-service-url.run.app'
 
 # Build steps
 steps:
@@ -57,7 +60,7 @@ steps:
       - '-t'
       - '${_REGISTRY}/$PROJECT_ID/frontend:latest'
       - '--build-arg'
-      - 'NEXT_PUBLIC_API_URL=https://${_BACKEND_SERVICE}-${_HASH_PROJECT_ID}-${_REGION_HASH}.a.run.app'
+      - 'NEXT_PUBLIC_API_URL=${_NEXT_PUBLIC_API_URL}'
       - '--build-arg'
       - 'NEXT_PUBLIC_BASE_PATH='
       - '-f'
@@ -225,10 +228,10 @@ tags:
 #      --repo-owner=your-github-username \
 #      --branch-pattern=main \
 #      --build-config=deployment/cloudbuild.yaml \
-#      --substitutions=_BACKEND_SERVICE=your-backend,_FRONTEND_SERVICE=your-frontend
+#      --substitutions=_BACKEND_SERVICE=your-backend,_FRONTEND_SERVICE=your-frontend,_NEXT_PUBLIC_API_URL=https://your-backend-url.run.app
 #
 # 5. Manual build:
 #    gcloud builds submit --config=deployment/cloudbuild.yaml \
-#      --substitutions=_BACKEND_SERVICE=your-backend,_FRONTEND_SERVICE=your-frontend
+#      --substitutions=_BACKEND_SERVICE=your-backend,_FRONTEND_SERVICE=your-frontend,_NEXT_PUBLIC_API_URL=https://your-backend-url.run.app
 #
 # ===================================================================
