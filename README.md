@@ -211,26 +211,57 @@ The script automatically excludes common non-essential files (node_modules, __py
 
 ## Environment Configuration
 
-The `.env` file contains all configuration. Key variables:
+The `.env` file contains all configuration. Copy `.env.example` to `.env` and customize as needed.
+
+### Core Variables (Required)
 
 ```bash
-# Application
-BASE_PATH=                    # Optional subpath for reverse proxy
-LOG_LEVEL=INFO               # Logging level
+# Application Environment
+APP_ENV=development          # development, staging, production
+BASE_PATH=                   # Optional subpath for reverse proxy
+LOG_LEVEL=INFO              # DEBUG, INFO, WARNING, ERROR, CRITICAL
 
-# URLs
+# Backend URLs and Ports
 FRONTEND_URL=http://localhost:3001${BASE_PATH}
+PORT=8000                   # Backend server port
+INTERNAL_IP=0.0.0.0         # Server binding IP
+
+# Frontend URLs
 NEXT_PUBLIC_API_URL=http://localhost:8001
 NEXT_PUBLIC_BASE_PATH=${BASE_PATH}
+INTERNAL_API_URL=http://backend:8000  # Container-to-container communication
 
-# Database
+# Database Connection
 POSTGRES_USER=user
 POSTGRES_PASSWORD=password
 POSTGRES_DB=app_db
-POSTGRES_HOST=postgres        # Use 'localhost' for local PostgreSQL
+POSTGRES_HOST=postgres      # Use 'localhost' for local PostgreSQL
 POSTGRES_PORT=5432
 DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}
 ```
+
+### Production Variables (Optional)
+
+```bash
+# Production Server Configuration
+GUNICORN_LOG_LEVEL=info     # Gunicorn-specific logging
+WORKER_CONNECTIONS=1000     # Max connections per worker
+GUNICORN_TIMEOUT=120        # Request timeout in seconds
+# WEB_CONCURRENCY=1         # Number of worker processes
+
+# Database Utilities
+SKIP_DB_WAIT=false          # Skip database connection wait during startup
+```
+
+### Future Integration Variables (Commented in .env.example)
+
+The `.env.example` file includes commented sections for:
+- **Authentication & Security**: JWT secrets, NextAuth.js, OAuth providers
+- **External Services**: Email, file storage, Redis, monitoring
+- **Feature Flags**: Custom application features
+- **Rate Limiting**: API rate limiting configuration
+
+Simply uncomment and configure these sections as you implement new features.
 
 ## Database Options
 
