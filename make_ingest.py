@@ -238,7 +238,14 @@ def generate_digest_cli(source, output_file="digest.txt", exclude_exts=None):
 if __name__ == "__main__":
     if len(sys.argv) < 2:
         print(
-            "Usage: python make_ingest.py <path_or_url> [output_file] [excluded_exts...]"
+            "Usage: python make_ingest.py <path_or_url> [output_file] [excluded_exts...]\n"
+            "\n"
+            "Examples:\n"
+            "  python make_ingest.py .                          # Basic usage\n"
+            "  python make_ingest.py . output.txt               # Custom output file\n"
+            "  python make_ingest.py . .production.txt          # Dotted output file\n"
+            "  python make_ingest.py . .log .tmp               # Exclude extensions\n"
+            "  python make_ingest.py . digest.json .log .tmp   # Custom output + exclusions"
         )
         sys.exit(1)
 
@@ -248,10 +255,24 @@ if __name__ == "__main__":
     output_file = "digest.txt"
     exclude_exts = []
 
-    if len(sys.argv) >= 3 and sys.argv[2].startswith(".") is False:
-        output_file = sys.argv[2]
-        exclude_exts = sys.argv[3:]
+    if len(sys.argv) >= 3:
+        arg2 = sys.argv[2]
+        # Check if it's likely a filename (contains file extension) vs extension (starts with . and is short)
+        is_filename = (
+            # Has a file extension like .txt, .md, .json, etc.
+            any(arg2.endswith(ext) for ext in ['.txt', '.md', '.json', '.log', '.out', '.html', '.xml']) or
+            # Contains a dot but not at the start (like output.txt)
+            ('.' in arg2 and not arg2.startswith('.')) or
+            # Starts with dot but looks like a filename (has extension or is long)
+            (arg2.startswith('.') and ('.' in arg2[1:] or len(arg2) > 6))
+        )
+        
+        if is_filename:
+            output_file = arg2
+            exclude_exts = sys.argv[3:]
+        else:
+            exclude_exts = sys.argv[2:]
     else:
-        exclude_exts = sys.argv[2:]
+        exclude_exts = []
 
     generate_digest_cli(source, output_file, exclude_exts)
