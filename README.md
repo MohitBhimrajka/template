@@ -185,6 +185,30 @@ npm run lint             # Lint code
 npm run format           # Format code
 ```
 
+## Utility Scripts
+
+### Project Digest Generation
+
+The `make_ingest.py` script helps generate comprehensive project digests using [gitingest](https://github.com/cyclotruc/gitingest). This is useful for:
+
+- Creating project summaries for AI analysis
+- Generating documentation snapshots
+- Code review preparation
+
+**Usage:**
+```bash
+# Generate digest of current directory
+python make_ingest.py .
+
+# Generate digest with custom output file
+python make_ingest.py . my_project_digest.txt
+
+# Generate digest excluding additional file types
+python make_ingest.py . .log .tmp .backup
+```
+
+The script automatically excludes common non-essential files (node_modules, __pycache__, build artifacts, etc.) to focus on the core source code.
+
 ## Environment Configuration
 
 The `.env` file contains all configuration. Key variables:
@@ -265,6 +289,7 @@ Update `DATABASE_URL` in `.env` with your connection string.
 │   └── package.json       # Node.js dependencies
 ├── scripts/                # Setup and utility scripts
 ├── alembic/               # Database migration files
+├── make_ingest.py         # Utility script for generating project digests with gitingest
 ├── gunicorn/              # Gunicorn configuration files
 ├── packages/              # Python dependency files
 ├── tests/                 # Backend test suite
