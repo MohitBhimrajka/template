@@ -110,6 +110,80 @@ make up
    alembic upgrade head
    ```
 
+## Production Database Migrations
+
+### Automatic Migration on Startup
+
+**✅ Production Ready**: Database migrations run automatically when the application starts, ensuring your database schema is always up-to-date without manual intervention.
+
+**How it works:**
+1. Application starts and waits for database connection
+2. Runs `alembic upgrade head` to apply any pending migrations  
+3. Starts the web server (Gunicorn)
+
+**Safety Features:**
+- **Non-destructive**: Only applies new migrations, never destroys existing data
+- **Timeout protection**: Migrations timeout after 10 minutes in production
+- **Error handling**: Application fails to start if migrations fail
+- **Logging**: Comprehensive logging of migration status and errors
+
+### Migration Management Tools
+
+Use the production-safe migration utilities:
+
+```bash
+# Check current migration status
+python scripts/migration_utils.py status
+
+# View migration history  
+python scripts/migration_utils.py history
+
+# Check for pending migrations
+python scripts/migration_utils.py pending
+
+# Validate migration files
+python scripts/migration_utils.py validate
+
+# View database connection info
+python scripts/migration_utils.py info
+
+# Manually apply migrations (with confirmation in production)
+python scripts/migration_utils.py apply
+```
+
+### Creating New Migrations
+
+```bash
+# Auto-generate migration from model changes
+alembic revision --autogenerate -m "Add user profiles table"
+
+# Create empty migration for manual changes  
+alembic revision -m "Add custom indexes"
+
+# Review the generated migration file before committing
+```
+
+### Production Migration Best Practices
+
+1. **Test migrations locally** before deploying to production
+2. **Review auto-generated migrations** - Alembic may not catch everything  
+3. **Backup database** before major schema changes
+4. **Use blue-green deployments** for zero-downtime schema changes
+5. **Monitor migration performance** - some changes can be slow on large tables
+
+### Emergency Migration Rollback
+
+```bash
+# Rollback to previous migration
+alembic downgrade -1
+
+# Rollback to specific revision  
+alembic downgrade <revision_id>
+
+# View downgrade SQL without executing
+alembic downgrade -1 --sql
+```
+
 6. **Start Services:**
    ```bash
    # Terminal 1: Backend
