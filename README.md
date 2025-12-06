@@ -253,15 +253,7 @@ GUNICORN_TIMEOUT=120        # Request timeout in seconds
 SKIP_DB_WAIT=false          # Skip database connection wait during startup
 ```
 
-### Future Integration Variables (Commented in .env.example)
-
-The `.env.example` file includes commented sections for:
-- **Authentication & Security**: JWT secrets, NextAuth.js, OAuth providers
-- **External Services**: Email, file storage, Redis, monitoring
-- **Feature Flags**: Custom application features
-- **Rate Limiting**: API rate limiting configuration
-
-Simply uncomment and configure these sections as you implement new features.
+The `.env.example` file contains only the essential variables currently used by the application. Add additional environment variables as needed when implementing new features.
 
 ## Database Options
 
