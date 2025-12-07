@@ -30,10 +30,14 @@ services:
       - ./alembic.ini:/app/alembic.ini  # Mount alembic config file
     ports:
       - "8001:8000"
-    environment:
-      - APP_ENV=development  # This tells entrypoint.sh to use development mode
+    # Explicitly load from .env file to ensure all variables are from environment
     env_file:
       - .env
+    environment:
+      # Backend-specific overrides (these take precedence over .env)
+      - APP_ENV=${APP_ENV:-development}  # Read from .env file
+      - PORT=${PORT:-8000}               # Backend port only
+      - POSTGRES_HOST=${POSTGRES_HOST:-postgres}  # Docker service name override
     depends_on:
       postgres:
         condition: service_healthy
@@ -52,10 +56,18 @@ services:
         - NEXT_PUBLIC_BASE_PATH=${NEXT_PUBLIC_BASE_PATH}
     ports:
       - "3001:3000"
-    # Runtime environment variables (`environment` or `env_file`) are available
-    # to the Node.js server process when it runs the application (`next start`).
+    # Load from .env file but override specific variables to prevent conflicts
     env_file:
       - .env
+    environment:
+      # Frontend-specific overrides (NO PORT variable to prevent conflict!)
+      - NODE_ENV=development
+      # These override any values from .env to ensure correct frontend behavior
+      - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
+      - NEXT_PUBLIC_BASE_PATH=${NEXT_PUBLIC_BASE_PATH}
+      - INTERNAL_API_URL=${INTERNAL_API_URL}
+      # Explicitly unset PORT to prevent frontend from using backend's PORT=8000
+      - PORT=
     depends_on:
       - backend
     networks:
